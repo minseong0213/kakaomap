@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../css/sidebar.css';
+import ReactDOM from 'react-dom';
+import FolderManager from './FolderManager';
+// import SaveLocationButton from './SaveLocationButton';
 
 const { kakao } = window;
 
@@ -37,6 +40,7 @@ const MapContainer = ({ searchPlace }) => {
   const itemsPerPage = 10; // 페이지 당 표시할 항목 수
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [folders, setFolders] = useState([]);
   const [places, setPlaces] = useState([]); // 장소 목록 상태
   const markers = useRef([]); // 마커 목록을 관리할 ref
 
@@ -122,8 +126,15 @@ const MapContainer = ({ searchPlace }) => {
         if (isInfoWindowOpen) {
           infowindow.close();
         } else {
-          infowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '</div>');
+          infowindow.setContent(`
+          <div style="padding:5px;font-size:12px;">
+            ${place.place_name}
+            <div id="saveButtonContainer"></div>
+          </div>
+        `);
           infowindow.open(map, marker);
+          // ReactDOM.render(<SaveLocationButton place={place} folders={folders} setFolders={setFolders} />, document.getElementById('saveButtonContainer'));
+          ReactDOM.render(<FolderManager place={place} folders={folders} setFolders={setFolders} />, document.getElementById('saveButtonContainer'));
         }
         const moveLatLon = new window.kakao.maps.LatLng(place.y, place.x);
         map.panTo(moveLatLon);
@@ -131,7 +142,7 @@ const MapContainer = ({ searchPlace }) => {
         isInfoWindowOpen = !isInfoWindowOpen;
       });
     }
-  }, [searchPlace]);
+  }, [searchPlace, folders]);
 
   return (
     <div style={{ display: 'flex' }}>
